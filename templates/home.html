@@ -1,0 +1,12 @@
+
+<p>Layouts</p>
+
+{{ define "content" }}
+<ul>
+    {{.data}}
+    {{ range .Camps }}
+    <li>{{ .Name }} - </li>
+    {{ .Attributes }}
+    {{ end }}
+</ul>
+{{ end }}

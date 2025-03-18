@@ -1,3 +1,11 @@
-<div>
-    this is camp section
-</div>
+{{ define "layout" }}
+<html>
+<head>
+    <title>My Camps</title>
+</head>
+<body>
+    <h1>Welcome to the Camps</h1>
+    {{ template "content" . }}
+</body>
+</html>
+{{ end }}

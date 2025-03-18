@@ -1,0 +1,15 @@
+{{define "content"}}
+<h1>Camps</h1>
+<ul>
+    {{range .Camps }}
+    <li>
+        <a href="/camp/{{.Name}}">{{.Name}}➡</a>
+        </li>
+     
+    {{ if .Attributes }}
+    Attributes: {{join .Attributes ", "}}
+    
+    {{end}}
+    {{end}}
+</ul>
+{{end}}

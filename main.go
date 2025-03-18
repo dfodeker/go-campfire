@@ -2,28 +2,13 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"html/template"
-	"io"
+
 	"net/http"
 	"strings"
-
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 )
-
-type TemplateRenderer struct {
-	Template interface {
-		ExecuteTemplate(wr io.Writer, name string, data any) error
-	}
-}
-type Template struct {
-	templates *template.Template
-}
-
-func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
-	return t.templates.ExecuteTemplate(w, name, data)
-}
 
 type Camp struct {
 	Name       string
@@ -37,6 +22,9 @@ type Camper struct {
 
 func (c *Camp) UpdateCamp(newCamp string) {
 	c.Name = newCamp
+}
+func (c Camp) Join(arr []string) string {
+	return strings.Join(arr, ", ")
 }
 
 var Camp1 = &Camp{
@@ -63,12 +51,12 @@ var camps = []Camp{
 	},
 }
 
-func joinStrings(sep string, items []string) string {
+func JoinStrings(sep string, items []string) string {
 	return strings.Join(items, sep)
 }
-func hello(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello, World!")
-}
+
+var campsTemplate *template.Template
+var campersTemplate *template.Template
 
 func main() {
 
@@ -84,32 +72,81 @@ func main() {
 		Camp1.Attributes = append(Camp1.Attributes, "The Campfire, where stories and songs are shared.")
 	}
 
-	//http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
+	_, err := template.ParseFiles(
+		"./templates/home.html",
+		"./templates/camp.html",
+	)
+	if err != nil {
+		log.Fatalf("could not init templates %v\n", err)
 
-	// Define route
-	e := echo.New()
-
-	// Middleware
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
-
-	// something??
-	renderer := &echo.TemplateRenderer{
-		Template: template.Must(template.New("").Funcs(template.FuncMap{
-			"join": joinStrings, // Register join function
-		}).ParseGlob("templates/*.html")),
 	}
-	e.Renderer = renderer
-	// Routes
-	// e.GET("/", hello)
-	e.GET("/", func(c echo.Context) error {
-		// camp := &Camp{
-		// 	Name:       "Camp Halfblood",
-		// 	Attributes: []string{"Greek", "Montauk", "Strong"},
-		// }
-		return c.Render(http.StatusOK, "index.html", camps)
-	})
+	funcMap := template.FuncMap{
+		"upper": strings.ToUpper,
+		"join":  strings.Join, // Converts a string to uppercase.
+	}
 
-	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	campsTemplate, err = template.New("layout.html").Funcs(funcMap).ParseFiles("templates/layout.html", "templates/camps.html")
+	if err != nil {
+		log.Fatalf("Error parsing camps template: %v", err)
+	}
+
+	// Template for campers page
+	campersTemplate, err = template.ParseFiles("templates/layout.html", "templates/campers.html")
+	if err != nil {
+		log.Fatalf("Error parsing campers template: %v", err)
+	}
+
+	http.HandleFunc("/", campsHandler)
+	http.HandleFunc("/camp/", campersHandler) // expects URL of the form /camp/{name}
+
+	log.Println("Server starting on :1230")
+	if err := http.ListenAndServe(":1230", nil); err != nil {
+		log.Fatalf("Server failed: %v", err)
+	}
+
+}
+func campsHandler(w http.ResponseWriter, r *http.Request) {
+	data := struct {
+		Title string
+		Camps []Camp
+	}{
+		Title: "List of Camps",
+		Camps: camps,
+	}
+
+	if err := campsTemplate.Execute(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+// campersHandler renders a list of campers for a specific camp.
+// It extracts the camp name from the URL.
+func campersHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract the camp name from the URL path. For example, "/camp/CampAdventure"
+	path := strings.TrimPrefix(r.URL.Path, "/camp/")
+	if path == "" {
+		http.Error(w, "Camp name not specified", http.StatusBadRequest)
+		return
+	}
+	campName := path
+	var camp *Camp
+	for i := range camps {
+		if camps[i].Name == campName {
+			camp = &camps[i]
+			break
+		}
+	}
+	data := struct {
+		Title    string
+		CampName string
+		Campers  []Camper
+	}{
+		Title:    "Campers at " + campName,
+		CampName: campName,
+		Campers:  camp.Campers,
+	}
+
+	if err := campersTemplate.Execute(w, data); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
