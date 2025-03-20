@@ -1,8 +1,59 @@
 {{define "content"}}
-<h1>Campers at {{.CampName}}</h1>
-<ul>
-    {{range .Campers}}
-        <li>{{.}}</li>
-    {{end}}
-</ul>
+
+
+
+<div class=" py-24 sm:py-32">
+    
+    <div class="mx-auto max-w-2xl px-6 lg:max-w-7xl lg:px-8">
+        <img class="block mx-auto size-48 shadow-xl rounded-md " alt="" src="{{.Camp.Photo}}" />
+  
+      <p class="mx-auto mt-2 max-w-lg text-center text-4xl font-semibold tracking-tight text-balance text-gray-950 sm:text-5xl">{{.CampName}}</p>
+      <div class="flex justify-center mt-2">
+        <span class="mt-2 flex gap-2">
+            <span class="flex items-center gap-1 text-pink-600 dark:text-pink-500">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"
+                    data-slot="icon" class="size-4">
+                    <path fill-rule="evenodd"
+                        d="M8 1.75a.75.75 0 0 1 .692.462l1.41 3.393 3.664.293a.75.75 0 0 1 .428 1.317l-2.791 2.39.853 3.575a.75.75 0 0 1-1.12.814L7.998 12.08l-3.135 1.915a.75.75 0 0 1-1.12-.814l.852-3.574-2.79-2.39a.75.75 0 0 1 .427-1.318l3.663-.293 1.41-3.393A.75.75 0 0 1 8 1.75Z"
+                        clip-rule="evenodd">
+
+                    </path>
+                </svg>
+                <span class="text-sm/6 font-medium">2.66</span>
+            </span>
+            <span class="text-sm/6 text-gray-500">(128 reviews)</span>
+            <span class="text-pink-300 dark:text-gray-600">·</span><span
+                class="text-sm/6 font-medium text-pink-600 dark:text-pink-500"> {{join .Camp.Attributes ", "}}</span></span>
+    </div>
+
+    <div class="@min-[theme(--breakpoint-lg)]:hidden flex justify-center mt-2 gap-4">
+        <button type="button"
+            class="w-50 rounded-lg bg-pink-500 px-3 py-2 text-sm/6 font-bold text-white @min-[theme(--breakpoint-sm)]:w-auto">Join Camp</button>
+            <a href="/"><button type="button"
+            class="w-50 rounded-lg bg-gray-800 px-3 py-2 text-sm/6 font-bold text-white @min-[theme(--breakpoint-sm)]:w-auto">Back</button></a>
+        </div>
+        </div>
+      <div class="mt-10 grid gap-4 sm:mt-16 lg:grid-cols-3 lg:grid-rows-2">
+        <div class="relative lg:row-span-2">
+          <div class="absolute inset-px rounded-lg bg-white lg:rounded-l-[2rem]"></div>
+          <div class="relative flex h-full flex-col overflow-hidden rounded-[calc(var(--radius-lg)+1px)] lg:rounded-l-[calc(2rem+1px)]">
+            <div class="px-8 pt-8 pb-3 sm:px-10 sm:pt-10 sm:pb-0">
+                
+                <ul>
+                    {{range .Camp.Campers}}
+                    <li>{{.}}</li>
+                    {{end}}
+                </ul>
+            </div>
+            
+          </div>
+          <div class="pointer-events-none absolute inset-px rounded-lg ring-1 shadow-sm ring-black/5 lg:rounded-l-[2rem]"></div>
+        </div>
+       
+      </div>
+    </div>
+  </div>
+  
+
+
 {{end}}

@@ -3,9 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>{{.Title}}</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/htmx.org@2.0.4" integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+" crossorigin="anonymous"></script>
 </head>
 <body>
-    {{template "content" .}}
+    <div class="h-screen">
+        {{template "content" .}}
+    </div>
 </body>
 </html>

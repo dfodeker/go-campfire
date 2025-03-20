@@ -12,6 +12,7 @@ import (
 
 type Camp struct {
 	Name       string
+	Photo      string
 	Attributes []string
 	Campers    []Camper
 }
@@ -36,6 +37,7 @@ var camps = []Camp{
 	{
 		Name:       "Camp Halfblood",
 		Attributes: []string{"Greek", "Montauk", "Strong"},
+		Photo:      "https://wccls.bibliocommons.com/events/uploads/images/full/ae2133848439b0be478b4c4ecfcb51f6/CampHalf-Blood.png",
 		Campers: []Camper{
 			{Name: "Percy Jackson", Age: 12},
 			{Name: "Annabeth Chase", Age: 13},
@@ -44,6 +46,7 @@ var camps = []Camp{
 	{
 		Name:       "Camp Jupiter",
 		Attributes: []string{"Roman", "San Francisco", "Disciplined"},
+		Photo:      "https://image-cdn.neatoshop.com/styleimg/163827/none/purple/default/587347-20;1728171486y.jpg",
 		Campers: []Camper{
 			{Name: "Jason Grace", Age: 16},
 			{Name: "Piper McLean", Age: 15},
@@ -61,16 +64,6 @@ var campersTemplate *template.Template
 func main() {
 
 	fmt.Println("=============================")
-
-	if Camp1.Name == "Camp Jupiter" {
-		Camp1.Attributes = append(Camp1.Attributes, "The Legion is the core military unit of Camp Jupiter, with different cohorts representing various gods.")
-		Camp1.Attributes = append(Camp1.Attributes, "The Fort, where campers train and live.")
-		Camp1.Attributes = append(Camp1.Attributes, "The Augury, a priestess who predicts the future.")
-	} else {
-		Camp1.Attributes = append(Camp1.Attributes, "Magic Barrier")
-		Camp1.Attributes = append(Camp1.Attributes, "The Arena, where campers train in combat.")
-		Camp1.Attributes = append(Camp1.Attributes, "The Campfire, where stories and songs are shared.")
-	}
 
 	_, err := template.ParseFiles(
 		"./templates/home.html",
@@ -91,7 +84,7 @@ func main() {
 	}
 
 	// Template for campers page
-	campersTemplate, err = template.ParseFiles("templates/layout.html", "templates/campers.html")
+	campersTemplate, err = template.New("layout.html").Funcs(funcMap).ParseFiles("templates/layout.html", "templates/campers.html")
 	if err != nil {
 		log.Fatalf("Error parsing campers template: %v", err)
 	}
@@ -139,11 +132,11 @@ func campersHandler(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Title    string
 		CampName string
-		Campers  []Camper
+		Camp     *Camp
 	}{
 		Title:    "Campers at " + campName,
 		CampName: campName,
-		Campers:  camp.Campers,
+		Camp:     camp,
 	}
 
 	if err := campersTemplate.Execute(w, data); err != nil {
